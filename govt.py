@@ -130,7 +130,8 @@ def highlights_page_content_grabber(highlights_page_link) :
 	else :
 		print(docket_page_link, browse_link["message"],browse_link["status_code"])
 		return False
-	highlight_text = data.findAll("div",{"class" : re.compile(r'^[a-zA-Z0-9- ]+field--name-product-highlights-custom*')})[0].text.strip()
+	highlight_tag = data.findAll("div",{"class" : re.compile(r'^[a-zA-Z0-9- ]+field--name-product-highlights-custom*')})[0]
+	highlight_text = highlight_tag.findAll("div",{"class" : "field__item"})[0].text.strip()
 	return highlight_text
 
 def extract_data_from_docket_page(docket_page_link) :
@@ -164,14 +165,20 @@ def extract_data_from_docket_page(docket_page_link) :
 			if len(field_tag.findAll("a")) != 0 and "file number" in field_name.lower() : #checking if file name has hyperlink
 				highlights_page_link = "https://www.gao.gov" + field_tag.findAll("a")[0]['href']
 				highlight_text = highlights_page_content_grabber(highlights_page_link)
+				all_data["Decision link"] = highlights_page_link
 				if highlight_text :
-					all_data["Decision Highlight"] = highlights_page_link + "\n" + highlight_text
+					all_data["Decision Highlight"] =  highlight_text
 				else :
-					all_data["Decision Highlight"] = highlights_page_link + "\n error in opening highlights report page" 
+					all_data["Decision Highlight"] = "Error in opening highlights report page" 
 		except :
 			field_value = "error"
 		all_data[field_name] =  field_value
-	if len(all_data) < 3 :
+	all_data["crawl_time"] =  str(datetime.datetime.now()).split(".")[0]
+
+	if 'Decision Summary' in all_data.keys() : #removing decision summary key as it wasn't needed in output as per review
+		del all_data['Decision Summary']
+
+	if len(all_data) < 4 : # just checking if crawl went successsful and have valueselse will raise error
 		raise
 	return all_data
  
@@ -203,7 +210,7 @@ def all_docket_data_from_search_page_link(search_page_link,log_file_name_with_pa
 		else :
 			all_docket_data = [extract_data_from_docket_page(i) for i in all_docket_page_links]
 	if log_file_name_with_path :
-		write_log = [log_file_writer(i,log_file_name_with_path) for i in all_docket_page_links]
+		write_log = log_file_writer(all_docket_page_links,log_file_name_with_path)
 	return all_docket_data
 
 #functions below to be used only in production
@@ -236,13 +243,17 @@ def log_file_writer(link_to_write,log_file_name_with_path) :
 		helps in resuming crawl
   
 		Parameters: 
-			link_to_write               (str)  :  single link
-			log_file_name_with_path     (str)  :  log filename to write 
+			link_to_write               (str/list)  :  single link or list of links
+			log_file_name_with_path     (str)       :  log filename to write 
 		Returns: 
 			null
 		"""
 	with open(log_file_name_with_path,"a") as f :
-		f.write(str(link_to_write) + "\n")
+		if isinstance(link_to_write, list) :
+			for single_link in link_to_write :
+				f.write(str(single_link) + "\n")
+		else :
+			f.write(str(link_to_write) + "\n")
 		
 def temp_file_writer(all_data,temp_file_with_path) :
 	""" 
@@ -302,7 +313,7 @@ def temp_open_close_all_docket_data_downloader(docket_type, base_open_close_link
 		if not log_file_presence_checker(single_link,log_file_name_with_path) :
 			data = all_docket_data_from_search_page_link(single_link,log_file_name_with_path)
 			temp_file_writer(data,temp_file_name)
-			log_file_writer(single_link,log_file_name_with_path)
+			log_file_writer(str(single_link),log_file_name_with_path)
 
 		file_count = file_count + 1 
 		percent_calci = (float(file_count)/float(len(all_search_pages_results)))*100.0
@@ -324,6 +335,7 @@ def final_csv_generator(docket_type,temp_file_name_with_path = False,writepath =
 													   ex input : "open" or "close"
 			temp_file_name_with_path  (str)          : temp json store filename with path return by func
 													   "temp_open_close_all_docket_data_downloader
+			writepath                 (str)          : currently not implemented 
 		Returns: 
 			pandas dataframe : Succesfully execution will return a pandas dataframe else 
 							   will return null if final crawl csv file is present in root
@@ -338,11 +350,11 @@ def final_csv_generator(docket_type,temp_file_name_with_path = False,writepath =
 		df1 = df_docket.pop('Decision Highlight')
 		df_docket['Decision Highlight'] = df1
 	#df_docket = df_docket.drop_duplicates()  
-	current_time = str(datetime.datetime.now()).replace(" ","T").replace(":","").split(".")[0]
+	current_date = str(datetime.datetime.now()).split(" ")[0]
 	if writepath :
-		df_docket.to_csv(writepath + docket_type +"." + current_time + ".csv", index = False)
+		df_docket.to_csv(writepath + docket_type +"_" + current_date + ".csv", index = False)
 	else :
-		df_docket.to_csv(docket_type + "." + current_time + ".csv", index = False)
+		df_docket.to_csv(docket_type + "_" + current_date + ".csv", index = False)
 		
 	if os.path.isfile(log_file_name_with_path) :
 		os.remove(log_file_name_with_path)
@@ -358,7 +370,6 @@ if __name__ == "__main__":
 	temp_file_name_with_path = temp_open_close_all_docket_data_downloader("open_docket", open_docket_base_link)
 	df = final_csv_generator("open_docket",temp_file_name_with_path)
 	print("completed")
-	print(time.ctime())
 	if (datetime.datetime.now() - start_time).seconds < 5 :
 		print("Already crawled todays file, only one time crawl is allowed in a day")
 	print("Execution time = %s" % (datetime.datetime.now() - start_time)) 
@@ -371,7 +382,6 @@ if __name__ == "__main__":
 	temp_file_name_with_path = temp_open_close_all_docket_data_downloader("close_docket", closed_docket_base_link)
 	df2 = final_csv_generator("close_docket",temp_file_name_with_path)
 	print("completed")
-	print(time.ctime())
 	if (datetime.datetime.now() - start_time).seconds < 5 :
 		print("Already crawled todays file, only one time crawl is allowed in a day")
 	print("Execution time = %s" % (datetime.datetime.now() - start_time))   
