@@ -297,11 +297,10 @@ def temp_open_close_all_docket_data_downloader(docket_type, base_open_close_link
 		"""
 	today = datetime.datetime.now().date()
 	already_created_files = glob.glob(str(docket_type)+"*.csv")
-	if len(already_created_files) != 0 :
-		latest_file = max(already_created_files, key=os.path.getctime)
-		filetime = datetime.datetime.fromtimestamp(
-				os.path.getctime(latest_file))
-		if filetime.date() == today:
+	for single_file in already_created_files :
+		date = re.search("([0-9]{4}\-[0-9]{2}\-[0-9]{2})", single_file)[0]
+		date = datetime.datetime.strptime(date, '%Y-%m-%d')
+		if date.date() == today :
 				return False
 			
 	temp_file_name = str(docket_type) + "_temp_data.json"
