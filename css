@@ -131,4 +131,126 @@ Resources1× 0.5× 0.25×Rerun
 </div>
 
 
-https://drive.google.com/file/d/1449FzcFbGDAceuU3DTP7HrsuilJQxi7d/view?usp=sharing
+for single_data in all_data :
+    new_dict = copy.deepcopy(single_data)
+    decision_highlights_soupe = soup(single_data["highlights_tags"],"html.parser")
+    decision_highlights_raw_text = decision_highlights_soupe.findAll("div",{"class" : "field__item"})[0].text.strip()
+    new_dict["decision_highlights_raw_text"] = decision_highlights_raw_text
+    
+    #date and file no extraction logic
+    if len(single_data["file_no_and_date"].split("\n\n")) > 1 :
+        new_dict["File no(s)"] = single_data["file_no_and_date"].split("\n\n")[0].strip()
+        new_dict["Date"] = single_data["file_no_and_date"].split("\n\n")[1].strip()
+    else :
+        new_dict["Date"] = single_data["file_no_and_date"].split("\n\n")[0].strip()
+        new_dict["File no(s)"] = ""
+    
+    #decision extraction 
+
+    if len(decision_highlights_soupe.findAll("div",{"class" : "status highlighted-status"})) == 0 and len(decision_highlights_soupe.findAll("p")) == 1 :
+        new_dict["Decision"] = ""
+    elif len(decision_highlights_soupe.findAll("div",{"class" : "status highlighted-status"})) == 0 and len(decision_highlights_soupe.findAll("p")) == 2:
+        new_dict["Decision"] = decision_highlights_soupe.findAll("p")[1].text.strip()
+    elif len(decision_highlights_soupe.findAll("div",{"class" : "status highlighted-status"})) > 0 :
+        decision = decision_highlights_soupe.findAll("div",{"class" : "status highlighted-status"})[0].text.strip()
+        new_dict["Decision"] = decision
+    else :
+        new_dict["Decision"] = ""
+        
+    
+    #awardee extraction 
+    if ", protests the " in decision_highlights_raw_text or "protest of " in decision_highlights_raw_text :
+        if ", protests the " in decision_highlights_raw_text :
+            curr_data = decision_highlights_raw_text.split(", protests the ")[1]
+        elif "protest of " in decision_highlights_raw_text :
+            curr_data = decision_highlights_raw_text.split("protest of ")[1]
+        else :
+            pass
+        if ", of " in curr_data :
+            curr_data = curr_data.split(", of ")[0]
+        if " to " in curr_data :
+            curr_data = curr_data.split(" to ")[1]
+            
+        if len(curr_data) > 100 :
+            curr_data = curr_data.split(",")[0]
+            if " with " in curr_data :
+                curr_data = curr_data.split(" with ")[1]
+        if "under request" in curr_data :
+            curr_data = curr_data.split("under request")[0]
+        new_dict["Original awardee"] = curr_data
+    else :
+        new_dict["Original awardee"] = ""
+        
+    
+    #RFP no extraction 
+    rfpno_search = re.search(r'\(RFP\)[a-z0-9A-Z .-]+([0-9])+' , decision_highlights_raw_text) 
+    if rfpno_search :
+        new_dict["RFP no."] = rfpno_search.group()
+    else :
+        new_dict["RFP no."] = ""
+    
+    #Agency extraction 
+    if "issued by the" in decision_highlights_raw_text :
+        agency_part = decision_highlights_raw_text.split("issued by the ")[1]
+        if ("U.S." not in agency_part) and ("U. S." not in agency_part):
+            for i in agency_part :
+                if i == "," :
+                    agency_part = agency_part.split(",")[0]
+                    break
+                if i == "." :
+                    agency_part = agency_part.split(".")[0]
+                    break
+        else :
+            if "," in agency_part :
+                agency_part = agency_part.split(",")[0]
+            if len(agency_part.split(".")) > 3 :
+                agency_part = ".".join(agency_part.split(".")[:3])
+        new_dict["Agency"] = agency_part
+            
+    elif "protests the Department" in decision_highlights_raw_text:
+        agency_part = decision_highlights_raw_text.split("protests the ")[1]
+        if "award of" in agency_part :
+            agency_part = agency_part.split("award of")[0]
+        elif "issuance of" in agency_part :
+            agency_part = agency_part.split("issuance of")[0]
+        elif "rejection of" in agency_part :
+            agency_part = agency_part.split("rejection of")[0]
+        elif "decision not to" in agency_part :
+            agency_part = agency_part.split("decision not to")[0]
+        elif "failure to" in agency_part :
+            agency_part = agency_part.split("failure to")[0]
+        elif "exclusion of" in agency_part :
+            agency_part = agency_part.split("exclusion of")[0]
+        elif "revision of" in agency_part :
+            agency_part = agency_part.split("revision of")[0]
+            
+        elif ("U.S." not in agency_part) and ("U. S." not in agency_part):
+            for i in agency_part :
+                if i == "," :
+                    agency_part = agency_part.split(",")[0]
+                    break
+                if i == "." :
+                    agency_part = agency_part.split(".")[0]
+                    break
+        else :
+            if "," in agency_part :
+                agency_part = agency_part.split(",")[0]
+            if len(agency_part.split(".")) > 3 :
+                agency_part = ".".join(agency_part.split(".")[:3])
+        new_dict["Agency"] = agency_part
+    else :
+        new_dict["Agency"] = ""
+        
+    #Protestor extraction  
+    new_dict["protestor"] = decision_highlights_raw_text.split(",")[0]
+        
+    del new_dict["highlights_tags"]
+    del new_dict['decision_tags']
+    del new_dict['crawl_time']
+    
+    all_dict.append(new_dict)
+    
+    
+    #print(new_dict["protestor"])
+    #print(decision_highlights_raw_text)
+    
