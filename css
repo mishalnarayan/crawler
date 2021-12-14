@@ -63,3 +63,87 @@ link= "https://www.amazon.com/Sonos-Move-Battery-powered-Bluetooth-built/dp/B07W
 
 
 delivery_time_getter(driver,link)
+
+
+
+
+def button_clicker(browser, button_id, by_what, element_count_presence_limit, kill_on_one_iteration = False,nth_no_of_element = False) :
+    actions = ActionChains(browser)
+    if by_what == "class_name" :
+        count = 0
+        while len(browser.find_elements_by_class_name(button_id))>element_count_presence_limit :
+            if nth_no_of_element == False :
+                for i in browser.find_elements_by_class_name(button_id) :
+                    try :
+                        actions = ActionChains(browser)
+                        actions.move_to_element(i).perform()
+                        #browser.execute_script("arguments[0].scrollIntoView();", i)
+                        i.click()
+                        time.sleep(0.5)   
+                    except :
+                        pass
+            else :
+                i = browser.find_elements_by_class_name(button_id)[nth_no_of_element]
+                try :
+                    actions = ActionChains(browser)
+                    actions.move_to_element(i).perform()
+                    #browser.execute_script("arguments[0].scrollIntoView();", i)
+                    i.click()
+                    time.sleep(0.5)   
+                except :
+                    pass
+            count = count + 1
+            if count > 0 :
+                print("click stuck breaker")
+                break
+                break               
+            if kill_on_one_iteration == True :
+                print("here tried to break it")
+                break
+                break
+                
+    if by_what == "id" :
+        count = 0
+        while len(browser.find_elements_by_id(button_id))>element_count_presence_limit :
+            for i in browser.find_elements_by_id(button_id) :
+                try :
+                    actions = ActionChains(browser)
+                    actions.move_to_element(i).perform()
+                    #browser.execute_script("arguments[0].scrollIntoView();", i)
+                    i.click()
+                    time.sleep(0.5)   
+                except :
+                    pass
+            count = count + 1
+            if count > 0 :
+                print("click stuck breaker")
+                break
+                break               
+            if kill_on_one_iteration == True :
+                print("here tried to break it")
+                break
+                break
+
+    if by_what == "xpath" :
+        count = 0
+        while len(browser.find_elements_by_xpath(button_id))>element_count_presence_limit :
+            for i in browser.find_elements_by_xpath(button_id) :
+                try :
+                    actions = ActionChains(browser)
+                    actions.move_to_element(i).perform()
+                    #browser.execute_script("arguments[0].scrollIntoView();", i)
+                    i.click()
+                    time.sleep(0.5)   
+                except :
+                    pass
+            count = count + 1
+            if count > 0 :
+                print("click stuck breaker")
+                break
+                break               
+            if kill_on_one_iteration == True :
+                print("here tried to break it")
+                break
+                break
+    #add more if needed
+            
