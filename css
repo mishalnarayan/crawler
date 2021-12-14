@@ -1,256 +1,65 @@
-<script>
-function htmlToCSV(html, filename) {
-	var data = [];
-	var rows = document.querySelectorAll("table tr");
-			
-	for (var i = 0; i < rows.length; i++) {
-		var row = [], cols = rows[i].querySelectorAll("td, th");
-				
-		for (var j = 0; j < cols.length; j++) {
-		        row.push(cols[j].innerText);
-                 }
-		        
-		data.push(row.join(",")); 		
-	}
-
-	downloadCSVFile(data.join("\n"), filename);
-}
-</script>
-
-
-
-
-
-
-<script>
-function downloadCSVFile(csv, filename) {
-	var csv_file, download_link;
-
-	csv_file = new Blob([csv], {type: "text/csv"});
-
-	download_link = document.createElement("a");
-
-	download_link.download = filename;
-
-	download_link.href = window.URL.createObjectURL(csv_file);
-
-	download_link.style.display = "none";
-
-	document.body.appendChild(download_link);
-
-	download_link.click();
-}
-</script>
+import xlsxwriter
+import glob
+import selenium
+import sys
+sys.setrecursionlimit(100000)
+from datetime import datetime
+from time import gmtime, strftime, localtime
+start_time = datetime.now()
+from selenium import webdriver
+from bs4 import BeautifulSoup as soup
+import pandas as pd
+import os
+import time
+import csv
+import re
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
+import random
+from selenium.webdriver.common.keys import Keys
+import json
+from urllib.parse import quote
 
 
 
-<script>
-document.getElementById("download-button").addEventListener("click", function () {
-	var html = document.querySelector("table").outerHTML;
-	htmlToCSV(html, "students.csv");
-});
-</script>
+def html_soup(browser):
+    return soup(browser.page_source,"html.parser")
 
-
-
-
-HTML CSSResult Skip Results Iframe
-EDIT ON
-html, body {
- background: #234;
-}
-
-.dnbtn {
-  border: 2px solid #0ff;
-  border-radius: 50px;
-  position: absolute;
-  color: #0ff;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 25px 0 0 0;
-  width: 50px;
-  height: 25px;
-  text-decoration: none;
-  transition: .3s;
-}
-
-.dnbtn:before {
-  font-family: 'ionicons';
-  content: '\f2dd';
-  font-size: 26px;
-  color: #0ff;
-  position: absolute;
-  transform: translate(-50%, -50%);
-  transition: .3s;
-}
-
-.dnbtn:hover:before {
-  display: none;
-}
-
-.dnbtn:hover:after {
-  font-family: Prompt;
-  content: 'DOWNLOAD';
-  color: #0ff;
-  font-size: 18px;
-  position: absolute;
-  transform: translate(-50%, -50%);
-  transition: .3s;
-  animation: fadein .3s;
-}
-
-.dnbtn:hover {
-  width: 160px;
-}
-
-@keyframes fadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes fadeout {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-
-Resources1× 0.5× 0.25×Rerun
-
-<link href='https://fonts.googleapis.com/css?family=Prompt' rel='stylesheet'/>
-<div align="center">
-  <a href="#" class="dnbtn"></a>
-</div>
-
-
-for single_data in all_data :
-    new_dict = copy.deepcopy(single_data)
-    decision_highlights_soupe = soup(single_data["highlights_tags"],"html.parser")
-    decision_highlights_raw_text = decision_highlights_soupe.findAll("div",{"class" : "field__item"})[0].text.strip()
-    new_dict["decision_highlights_raw_text"] = decision_highlights_raw_text
+def zip_code_setter(browser, zip_code) :
+    #run just once
+    browser.get("https://www.amazon.com/")
+    loaded = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, "nav-global-location-popover-link")))
+    button_clicker(browser, "nav-global-location-popover-link", "id",0,True)
+    time.sleep(1)
+    loaded = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, "GLUXZipUpdateInput")))
     
-    #date and file no extraction logic
-    if len(single_data["file_no_and_date"].split("\n\n")) > 1 :
-        new_dict["File no(s)"] = single_data["file_no_and_date"].split("\n\n")[0].strip()
-        new_dict["Date"] = single_data["file_no_and_date"].split("\n\n")[1].strip()
-    else :
-        new_dict["Date"] = single_data["file_no_and_date"].split("\n\n")[0].strip()
-        new_dict["File no(s)"] = ""
+    box = browser.find_element_by_id('GLUXZipUpdateInput')
+    box.clear()
     
-    #decision extraction 
+    box.send_keys(zip_code)
+    box.send_keys(Keys.RETURN)
+    
+    loaded = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, "GLUXConfirmClose")))
+    button_clicker(browser, "GLUXConfirmClose", "id",0,True)
+    
+    return True
 
-    if len(decision_highlights_soupe.findAll("div",{"class" : "status highlighted-status"})) == 0 and len(decision_highlights_soupe.findAll("p")) == 1 :
-        new_dict["Decision"] = ""
-    elif len(decision_highlights_soupe.findAll("div",{"class" : "status highlighted-status"})) == 0 and len(decision_highlights_soupe.findAll("p")) == 2:
-        new_dict["Decision"] = decision_highlights_soupe.findAll("p")[1].text.strip()
-    elif len(decision_highlights_soupe.findAll("div",{"class" : "status highlighted-status"})) > 0 :
-        decision = decision_highlights_soupe.findAll("div",{"class" : "status highlighted-status"})[0].text.strip()
-        new_dict["Decision"] = decision
-    else :
-        new_dict["Decision"] = ""
-        
+def delivery_time_getter(browser,link) :
+    browser.get(link)
+    page_soup = html_soup(browser)
+    free_del = page_soup.findAll("div",{"id" : "deliveryBlockMessage"})[0].text.strip()
+    return free_del
     
-    #awardee extraction 
-    if ", protests the " in decision_highlights_raw_text or "protest of " in decision_highlights_raw_text :
-        if ", protests the " in decision_highlights_raw_text :
-            curr_data = decision_highlights_raw_text.split(", protests the ")[1]
-        elif "protest of " in decision_highlights_raw_text :
-            curr_data = decision_highlights_raw_text.split("protest of ")[1]
-        else :
-            pass
-        if ", of " in curr_data :
-            curr_data = curr_data.split(", of ")[0]
-        if " to " in curr_data :
-            curr_data = curr_data.split(" to ")[1]
-            
-        if len(curr_data) > 100 :
-            curr_data = curr_data.split(",")[0]
-            if " with " in curr_data :
-                curr_data = curr_data.split(" with ")[1]
-        if "under request" in curr_data :
-            curr_data = curr_data.split("under request")[0]
-        new_dict["Original awardee"] = curr_data
-    else :
-        new_dict["Original awardee"] = ""
-        
-    
-    #RFP no extraction 
-    rfpno_search = re.search(r'\(RFP\)[a-z0-9A-Z .-]+([0-9])+' , decision_highlights_raw_text) 
-    if rfpno_search :
-        new_dict["RFP no."] = rfpno_search.group()
-    else :
-        new_dict["RFP no."] = ""
-    
-    #Agency extraction 
-    if "issued by the" in decision_highlights_raw_text :
-        agency_part = decision_highlights_raw_text.split("issued by the ")[1]
-        if ("U.S." not in agency_part) and ("U. S." not in agency_part):
-            for i in agency_part :
-                if i == "," :
-                    agency_part = agency_part.split(",")[0]
-                    break
-                if i == "." :
-                    agency_part = agency_part.split(".")[0]
-                    break
-        else :
-            if "," in agency_part :
-                agency_part = agency_part.split(",")[0]
-            if len(agency_part.split(".")) > 3 :
-                agency_part = ".".join(agency_part.split(".")[:3])
-        new_dict["Agency"] = agency_part
-            
-    elif "protests the Department" in decision_highlights_raw_text:
-        agency_part = decision_highlights_raw_text.split("protests the ")[1]
-        if "award of" in agency_part :
-            agency_part = agency_part.split("award of")[0]
-        elif "issuance of" in agency_part :
-            agency_part = agency_part.split("issuance of")[0]
-        elif "rejection of" in agency_part :
-            agency_part = agency_part.split("rejection of")[0]
-        elif "decision not to" in agency_part :
-            agency_part = agency_part.split("decision not to")[0]
-        elif "failure to" in agency_part :
-            agency_part = agency_part.split("failure to")[0]
-        elif "exclusion of" in agency_part :
-            agency_part = agency_part.split("exclusion of")[0]
-        elif "revision of" in agency_part :
-            agency_part = agency_part.split("revision of")[0]
-            
-        elif ("U.S." not in agency_part) and ("U. S." not in agency_part):
-            for i in agency_part :
-                if i == "," :
-                    agency_part = agency_part.split(",")[0]
-                    break
-                if i == "." :
-                    agency_part = agency_part.split(".")[0]
-                    break
-        else :
-            if "," in agency_part :
-                agency_part = agency_part.split(",")[0]
-            if len(agency_part.split(".")) > 3 :
-                agency_part = ".".join(agency_part.split(".")[:3])
-        new_dict["Agency"] = agency_part
-    else :
-        new_dict["Agency"] = ""
-        
-    #Protestor extraction  
-    new_dict["protestor"] = decision_highlights_raw_text.split(",")[0]
-        
-    del new_dict["highlights_tags"]
-    del new_dict['decision_tags']
-    del new_dict['crawl_time']
-    
-    all_dict.append(new_dict)
-    
-    
-    #print(new_dict["protestor"])
-    #print(decision_highlights_raw_text)
-    
+
+
+
+zip_code_setter(driver, "10128")
+
+
+link= "https://www.amazon.com/Sonos-Move-Battery-powered-Bluetooth-built/dp/B07W95RBZM/"
+
+
+delivery_time_getter(driver,link)
