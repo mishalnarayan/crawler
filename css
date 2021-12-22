@@ -1,189 +1,197 @@
-
-<div class="floatingButtonWrap">
-    <div class="floatingButtonInner">
-        <a href="#" class="floatingButton">
-            <i class="fa fa-plus icon-default"></i>
-        </a>
-        <ul class="floatingMenu">
-            <li>
-                <a href="#">Add Supplier</a>
-            </li>
-            <li>
-                <a href="#">Add Table</a>
-            </li>
-            <li>
-                <a href="#">Add Food</a>
-            </li>
-            <li>
-                <a href="#">Add Menu Type</a>
-            </li>
-            <li>
-                <a href="#">Add Menu</a>
-            </li>
-            <li>
-                <a href="https://google.com" target="_blank">Go To Google</a>
-            </li>
-            <li>
-                <a href="#">Add Inventory</a>
-            </li>
-            <li>
-                <a href="#">Add Staff</a>
-            </li>
-        </ul>
-    </div>
+<div class="wrapper">
+  <input type="checkbox" />
+  <div class="fab"></div>
+  <div class="fac">
+    <a href="#"><i class="fas fa-suitcase"></i></a>
+    <a href="#"><i class="far fa-file-alt"></i></a>
+    <a href="#"><i class="fas fa-wallet"></i></a>
+  </div>
 </div>
 
 
 
 
-
-
-
-
+:root {
+  --background: #4285f4;
+  --icon-color: #344955;
+  --width: 50px;
+  --height: 50px;
+  --border-radius: 100%;
+}
 
 body {
-  width: 100vw;
+  background: #fff;
+  background-color: #eff8e2;
   height: 100vh;
-  background: #fafbff;
-}
-.floatingButtonWrap {
-    display: block;
-    position: fixed;
-    bottom: 45px;
-    right: 45px;
-    z-index: 999999999;
+  font: "Lexend Deca", sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
 }
 
-.floatingButtonInner {
+.wrapper {
+  width: var(--width);
+  height: var(--height);
+  position: relative;
+  border-radius: var(--border-radius);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 6rem;
+  
+  .fab {
+    background: var(--background);
+    width: var(--width);
+    height: var(--height);
     position: relative;
-}
-
-.floatingButton {
-    display: block;
-    width: 60px;
-    height: 60px;
-    text-align: center;
-    background: -webkit-linear-gradient(45deg, #8769a9, #507cb3);
-    background: -o-linear-gradient(45deg, #8769a9, #507cb3);
-    background: linear-gradient(45deg, #8769a9, #507cb3);
-    color: #fff;
-    line-height: 50px;
+    z-index: 3;
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fab-animation-reverse 0.4s ease-out forwards;
+    
+    &::before,
+    &::after {
+      content: "";
+      display: block;
+      position: absolute;
+      border-radius: 4px;
+      background: #fff;
+    }
+    
+    &::before {
+      width: 4px;
+      height: 18px;
+    }
+    
+    &::after {
+      width: 18px;
+      height: 4px;
+    }
+  }
+  
+  .fac {
+    //floating actions container
+    width: 32px;
+    height: 150px;
+    border-radius: 64px;
     position: absolute;
-    border-radius: 50% 50%;
-    bottom: 0px;
-    right: 0px;
-    border: 5px solid #b2bedc;
-    /* opacity: 0.3; */
-    opacity: 1;
-    transition: all 0.4s;
-}
-
-.floatingButton .fa {
-    font-size: 15px !important;
-}
-
-.floatingButton.open,
-.floatingButton:hover,
-.floatingButton:focus,
-.floatingButton:active {
-    opacity: 1;
-    color: #fff;
-}
-
-
-.floatingButton .fa {
-    transform: rotate(0deg);
-    transition: all 0.4s;
-}
-
-.floatingButton.open .fa {
-    transform: rotate(270deg);
-}
-
-.floatingMenu {
-    position: absolute;
-    bottom: 60px;
-    right: 0px;
-    /* width: 200px; */
-    display: none;
-}
-
-.floatingMenu li {
+    background: #fff;
+    z-index: 2;
+    padding: 0.5rem 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    top: -110px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    transition: opacity 0.2s ease-in, top 0.2s ease-in, width 0.1s ease-in;
+    
+    /*&::after {
+      content: "";
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 3px;
+      position: absolute;
+      left: 50%;
+      margin-left: -10px;
+      bottom: -8px;
+      transform: rotate(45deg);
+      z-index: 0;
+    }*/
+    
+    a {
+      color: var(--icon-color);
+      opacity: 0.8;
+      
+      &:hover {
+        transition: 0.2s;
+        opacity: 1;
+        color: darken(#344955, 2%);
+      }
+    }
+  }
+  
+  input {
+    height: 100%;
     width: 100%;
-    float: right;
-    list-style: none;
-    text-align: right;
-    margin-bottom: 5px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    position: absolute;
+    z-index: 5;
+    opacity: 0;
+    
+    &:checked {
+      ~ .fab {
+        animation: fab-animation 0.4s ease-out forwards;
+      }
+      
+      ~ .fac {
+        width: 32px;
+        height: 150px;
+        animation: fac-animation 0.4s ease-out forwards 0.1s;
+        top: -180px;
+        opacity: 1;
+      }
+    }
+  }
 }
 
-.floatingMenu li a {
-    padding: 8px 15px;
-    display: inline-block;
-    background: #ccd7f5;
-    color: #6077b0;
-    border-radius: 5px;
-    overflow: hidden;
-    white-space: nowrap;
-    transition: all 0.4s;
-    /* -webkit-box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.22);
-    box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.22); */
-    -webkit-box-shadow: 1px 3px 5px rgba(211, 224, 255, 0.5);
-    box-shadow: 1px 3px 5px rgba(211, 224, 255, 0.5);
+@keyframes fab-animation {
+  0% {
+    transform: rotate(0) scale(1);
+  }
+  20% {
+    transform: rotate(60deg) scale(0.93);
+  }
+  55% {
+    transform: rotate(35deg) scale(0.97);
+  }
+  80% {
+    transform: rotate(48deg) scale(0.94);
+  }
+  100% {
+    transform: rotate(45deg) scale(0.95);
+  }
 }
 
-.floatingMenu li a:hover {
-    margin-right: 10px;
-    text-decoration: none;
+@keyframes fab-animation-reverse {
+  0% {
+    transform: rotate(45deg) scale(0.95);
+  }
+  20% {
+    transform: rotate(-15deg);
+  }
+  55% {
+    transform: rotate(10deg);
+  }
+  80% {
+    transform: rotate(-3deg);
+  }
+  100% {
+    transform: rotate(0) scale(1);
+  }
 }
 
-
-
-
-
-
-
-
-$(document).ready(function(){
-        $('.floatingButton').on('click',
-            function(e){
-                e.preventDefault();
-                $(this).toggleClass('open');
-                if($(this).children('.fa').hasClass('fa-plus'))
-                {
-                    $(this).children('.fa').removeClass('fa-plus');
-                    $(this).children('.fa').addClass('fa-close');
-                } 
-                else if ($(this).children('.fa').hasClass('fa-close')) 
-                {
-                    $(this).children('.fa').removeClass('fa-close');
-                    $(this).children('.fa').addClass('fa-plus');
-                }
-                $('.floatingMenu').stop().slideToggle();
-            }
-        );
-        $(this).on('click', function(e) {
-          
-            var container = $(".floatingButton");
-            // if the target of the click isn't the container nor a descendant of the container
-            if (!container.is(e.target) && $('.floatingButtonWrap').has(e.target).length === 0) 
-            {
-                if(container.hasClass('open'))
-                {
-                    container.removeClass('open');
-                }
-                if (container.children('.fa').hasClass('fa-close')) 
-                {
-                    container.children('.fa').removeClass('fa-close');
-                    container.children('.fa').addClass('fa-plus');
-                }
-                $('.floatingMenu').hide();
-            }
-          
-            // if the target of the click isn't the container and a descendant of the menu
-            if(!container.is(e.target) && ($('.floatingMenu').has(e.target).length > 0)) 
-            {
-                $('.floatingButton').removeClass('open');
-                $('.floatingMenu').stop().slideToggle();
-            } 
-        });
-    });
+@keyframes fac-animation {
+  0% {
+    transform: scale(1, 1);
+  }
+  33% {
+    transform: scale(0.95, 1.05);
+  }
+  66% {
+    transform: scale(1.05, 0.95);
+  }
+  100% {
+    transform: scale(1, 1);
+  }
+}
