@@ -8,61 +8,165 @@ directly from apple store,json object hidden inside last tag : - https://apps.ap
 
 
 
- <label class="switch-wrap">
-  <input type="checkbox" />
-  <div class="switch"></div>
+ <label class="switch">
+    <input type="checkbox">
+    <span></span>
 </label>
 
 
-html {
-  box-sizing: border-box;
-  height: 100%;
+.switch {
+  cursor: pointer;
+}
+.switch input {
+  display: none;
+}
+.switch input + span {
+  width: 48px;
+  height: 28px;
+  border-radius: 14px;
+  transition: all 0.3s ease;
+  display: block;
+  position: relative;
+  background: #FF4651;
+  box-shadow: 0 8px 16px -1px rgba(255, 70, 81, 0.2);
+}
+.switch input + span:before, .switch input + span:after {
+  content: "";
+  display: block;
+  position: absolute;
+  transition: all 0.3s ease;
+}
+.switch input + span:before {
+  top: 5px;
+  left: 5px;
+  width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  border: 5px solid #fff;
+}
+.switch input + span:after {
+  top: 5px;
+  left: 32px;
+  width: 6px;
+  height: 18px;
+  border-radius: 40%;
+  transform-origin: 50% 50%;
+  background: #fff;
+  opacity: 0;
+}
+.switch input + span:active {
+  transform: scale(0.92);
+}
+.switch input:checked + span {
+  background: #48EA8B;
+  box-shadow: 0 8px 16px -1px rgba(72, 234, 139, 0.2);
+}
+.switch input:checked + span:before {
+  width: 0px;
+  border-radius: 3px;
+  margin-left: 27px;
+  border-width: 3px;
+  background: #fff;
+}
+.switch input:checked + span:after {
+  -webkit-animation: blobChecked 0.35s linear forwards 0.2s;
+          animation: blobChecked 0.35s linear forwards 0.2s;
+}
+.switch input:not(:checked) + span:before {
+  -webkit-animation: blob 0.85s linear forwards 0.2s;
+          animation: blob 0.85s linear forwards 0.2s;
 }
 
-*, *::before, *::after {
-  box-sizing: inherit;
+@-webkit-keyframes blob {
+  0%, 100% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.12, 0.94);
+  }
+  60% {
+    transform: scale(0.96, 1.06);
+  }
+}
+
+@keyframes blob {
+  0%, 100% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.12, 0.94);
+  }
+  60% {
+    transform: scale(0.96, 1.06);
+  }
+}
+@-webkit-keyframes blobChecked {
+  0% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  30% {
+    transform: scaleX(1.44);
+  }
+  70% {
+    transform: scaleX(1.18);
+  }
+  50%, 99% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+}
+@keyframes blobChecked {
+  0% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  30% {
+    transform: scaleX(1.44);
+  }
+  70% {
+    transform: scaleX(1.18);
+  }
+  50%, 99% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+}
+html {
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+*:before, *:after {
+  box-sizing: border-box;
 }
 
 body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   min-height: 100vh;
-  background: #f5f5f5;
+  font-family: Roboto, Arial;
+  color: #ADAFB6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #F5F9FF;
 }
-
-.switch-wrap {
-  cursor: pointer;
-  background: #15273b;
-  padding: 7px;
-  width: 120px;
-  height: 67px;
-  border-radius: 33.5px;
+body .dribbble {
+  position: fixed;
+  display: block;
+  right: 20px;
+  bottom: 20px;
 }
-.switch-wrap input {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.switch {
-  height: 100%;
-  display: grid;
-  grid-template-columns: 0fr 1fr 1fr;
-  transition: 0.2s;
-}
-.switch::after {
-  content: "";
-  border-radius: 50%;
-  background: #ccc;
-  grid-column: 2;
-  transition: background 0.2s;
-}
-
-input:checked + .switch {
-  grid-template-columns: 1fr 1fr 0fr;
-}
-input:checked + .switch::after {
-  background-color: #52cf71;
+body .dribbble img {
+  display: block;
+  height: 28px;
 }
