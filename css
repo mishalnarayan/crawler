@@ -8,61 +8,71 @@ directly from apple store,json object hidden inside last tag : - https://apps.ap
 
 
 
- <label class="switch">
-    <input type="checkbox">
-    <span></span>
-</label>
+ 
+/* Follow me for more pens like this! */
+/*
+  Note: This demo could have easily been written in vanilla CSS.
+  The reason I opted into using SCSS, was just so that I could
+  enable easy customization for you, the viewer.
 
-
-html {
-  box-sizing: border-box;
-  height: 100%;
-}
-
-*, *::before, *::after {
-  box-sizing: inherit;
-}
-
-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background: #f5f5f5;
-}
-
-.switch-wrap {
+  If you want to use this control in your own project as vanilla CSS;
+  customize the variables to whatever you'd like, and then click on the
+  down arrow button in the top right of this CSS editor and then select
+  "View Compiled CSS".
+*/
+.toggle-control {
+  display: block;
+  position: relative;
+  padding-left: 100px;
+  margin-bottom: 12px;
   cursor: pointer;
-  background: #15273b;
-  padding: 7px;
-  width: 120px;
-  height: 67px;
-  border-radius: 33.5px;
+  font-size: 22px;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
 }
-.switch-wrap input {
+.toggle-control input {
   position: absolute;
   opacity: 0;
-  width: 0;
+  cursor: pointer;
   height: 0;
+  width: 0;
 }
-
-.switch {
-  height: 100%;
-  display: grid;
-  grid-template-columns: 0fr 1fr 1fr;
-  transition: 0.2s;
+.toggle-control input:checked ~ .control {
+  background-color: dodgerblue;
 }
-.switch::after {
+.toggle-control input:checked ~ .control:after {
+  left: 55px;
+}
+.toggle-control .control {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 50px;
+  width: 100px;
+  border-radius: 25px;
+  background-color: darkgray;
+  transition: background-color 0.15s ease-in;
+}
+.toggle-control .control:after {
   content: "";
-  border-radius: 50%;
-  background: #ccc;
-  grid-column: 2;
-  transition: background 0.2s;
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  width: 40px;
+  height: 40px;
+  border-radius: 25px;
+  background: white;
+  transition: left 0.15s ease-in;
 }
 
-input:checked + .switch {
-  grid-template-columns: 1fr 1fr 0fr;
-}
-input:checked + .switch::after {
-  background-color: #52cf71;
+/* Center the control */
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #222229;
+  color: white;
 }
