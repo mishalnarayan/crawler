@@ -46,3 +46,21 @@ for log in filter(log_filter, logs):
     resp_url = log["params"]["response"]["url"]
     print(f"Caught {resp_url}")
     print(driver.execute_cdp_cmd("Network.getResponseBody", {"requestId": request_id}))
+    
+    
+    
+    
+ def linkedin_login(browser, username, passkey) :
+    browser.get("https://www.linkedin.com/login?fromSignIn=true&trk=guest_homepage-basic_nav-header-signin")
+    loaded = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.ID, "username")))
+    email = browser.find_element_by_name('session_key')
+    email.clear()
+    password = browser.find_element_by_name('session_password')
+    password.clear()
+
+    email.send_keys(str(username))
+    password.send_keys(str(passkey))
+    password.send_keys(Keys.RETURN)
+
+    loaded = WebDriverWait(browser, 60).until(EC.presence_of_element_located((By.ID, "global-nav")))
+    return True
