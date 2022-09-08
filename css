@@ -25,6 +25,20 @@ driver = webdriver.Chrome(
     desired_capabilities=capabilities, executable_path="./chromedriver"
 )
 
+
+
+Thanks for connecting offline, your docs were very helpful and I’m able to work with bitbucket individually. Although we would like to setup our team account that can hold multiple projects repos with defined access levels. 
+
+Here’s features we are looking for our team’s bitbucket account:
+•	Team/GRN based bitbucket account with project path ex: data-strats/GAO_tracker, data-strats/employment_data
+•	Each project should have customizable view/merge-request permissions based on mail-group/individual/teams.
+•	Defined and customizable entire bitbucket and individual repo based ownership i.e who can create project, who can approve merge request, who can delete projects.
+Thanks again.
+
+Regards,
+Ujjawal Narayan
+
+
 # fetch a site that does xhr requests
 driver.get("https://sitewithajaxorsomething.com")
 sleep(5)  # wait for the requests to take place
